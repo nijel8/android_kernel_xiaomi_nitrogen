@@ -48,3 +48,13 @@
 &ssc_sensors {
 	qcom,firmware-name = "adsp_e4";
 };
+
+&firmware {
+    android {
+        fstab {
+            system {
+                fsmgr_flags = "wait";
+            };
+        };
+    };
+};
