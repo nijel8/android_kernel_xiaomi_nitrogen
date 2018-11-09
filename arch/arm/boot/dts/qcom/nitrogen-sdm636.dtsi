@@ -55,6 +55,9 @@
             system {
                 fsmgr_flags = "wait";
             };
+	        vendor {
+                fsmgr_flags = "wait";
+            };
         };
     };
 };
