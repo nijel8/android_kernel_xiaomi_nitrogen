@@ -3151,9 +3151,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	if (pdata->snd_card_val != INT_SND_CARD)
 		msm_ext_register_audio_notifier(pdev);
 
-	if (get_hw_version_platform() == HARDWARE_PLATFORM_JASON)
-		usbhs_init(pdev);
-
 	return 0;
 err:
 	if (pdata->us_euro_gpio > 0) {
@@ -3189,8 +3186,6 @@ static int msm_asoc_machine_remove(struct platform_device *pdev)
 	else
 		msm_ext_cdc_deinit(pdata);
 	msm_free_auxdev_mem(pdev);
-	if (get_hw_version_platform() == HARDWARE_PLATFORM_JASON)
-		usbhs_deinit();
 
 	gpio_free(pdata->us_euro_gpio);
 	gpio_free(pdata->hph_en1_gpio);
