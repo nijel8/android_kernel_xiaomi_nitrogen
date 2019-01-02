@@ -256,7 +256,7 @@ uint32_t socinfo_get_pmic_die_revision(void);
 int __init socinfo_init(void) __must_check;
 
 #define HARDWARE_PLATFORM_UNKNOWN 0
-#define HARDWARE_PLATFORM_JASON 8
+#define HARDWARE_PLATFORM_NITROGEN 4636
 
 #define HW_MAJOR_VERSION_SHIFT 16
 #define HW_MAJOR_VERSION_MASK  0xFFFF0000
