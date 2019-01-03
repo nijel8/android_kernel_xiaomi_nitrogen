@@ -618,6 +618,13 @@
 // custom
 / {
     reserved-memory {
+        /delete-node/ dfps_data_mem@0x9f7ff000;
+
+        dfps_data_mem: dfps_data_mem@0x9f800000 {
+               reg = <0 0x9f800000 0 0x00001000>;
+               label = "dfps_data_mem";
+        };
+
         ramoops_mem: ramoops_region@b0000000 {
             compatible = "removed-dma-pool";
             no-map;
