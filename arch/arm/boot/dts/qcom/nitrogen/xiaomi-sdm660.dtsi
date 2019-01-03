@@ -619,6 +619,7 @@
 / {
     reserved-memory {
         /delete-node/ dfps_data_mem@0x9f7ff000;
+        /delete-node/ pil_mba_region@94800000;
 
         dfps_data_mem: dfps_data_mem@0x9f800000 {
                reg = <0 0x9f800000 0 0x00001000>;
@@ -629,6 +630,12 @@
             compatible = "removed-dma-pool";
             no-map;
             reg = <0 0xb0000000 0 0x400000>;
+        };
+
+        pil_mba_mem: pil_mba_region@94c00000 {
+            compatible = "removed-dma-pool";
+            no-map;
+            reg = <0x0 0x94c00000 0x0 0x200000>;
         };
     };
 };
