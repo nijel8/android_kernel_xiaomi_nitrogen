@@ -641,3 +641,9 @@
         pmsg-size = <0x0 0x200000>;
     };
 };
+
+&soc {
+    qcom,qbt1000 {
+        status = "disabled";
+    };
+};
