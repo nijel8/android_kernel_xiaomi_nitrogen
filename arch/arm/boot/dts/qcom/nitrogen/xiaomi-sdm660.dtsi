@@ -367,6 +367,7 @@
 		compatible = "regulator-fixed";
 		regulator-name = "fp_vdd_vreg";
 		startup-delay-us = <4000>;
+        regulator-always-on;
 		enable-active-high;
 		gpio = <&tlmm 64 0>;
 	};
@@ -479,10 +480,6 @@
 	};
 };
 
-&fp_vdd_vreg {
-	regulator-always-on;
-};
-
 &pm660_gpios {
 	/* disable pmic gpio_4 as adc for backlight therm */
 	gpio@c300 {
@@ -491,6 +488,128 @@
 		status = "ok";
 		qcom,master-en = <0>;
 	};
+};
+
+// custom
+/ {
+    reserved-memory {
+        /delete-node/ dfps_data_mem@0x9f7ff000;
+        /delete-node/ pil_mba_region@94800000;
+
+        dfps_data_mem: dfps_data_mem@0x9f800000 {
+               reg = <0 0x9f800000 0 0x00001000>;
+               label = "dfps_data_mem";
+        };
+
+        ramoops_mem: ramoops_region@b0000000 {
+            compatible = "removed-dma-pool";
+            no-map;
+            reg = <0 0xb0000000 0 0x400000>;
+        };
+
+        pil_mba_mem: pil_mba_region@94c00000 {
+            compatible = "removed-dma-pool";
+            no-map;
+            reg = <0x0 0x94c00000 0x0 0x200000>;
+        };
+    };
+};
+
+&soc {
+    ramoops {
+        compatible = "ramoops";
+        memory-region = <&ramoops_mem>;
+        console-size = <0x0 0x200000>;
+        pmsg-size = <0x0 0x200000>;
+    };
+};
+
+&soc {
+    qcom,qbt1000 {
+        status = "disabled";
+    };
+};
+
+// msm-pm660.dtsi
+&spmi_bus {
+    qcom,pm660@0 {
+        qcom,power-on@800 {
+            qcom,pon-dbc-delay = <62500>;
+            qcom,pon_1 {
+                qcom,support-reset = <1>;
+                qcom,s1-timer = <6720>;
+                qcom,s2-timer = <2000>;
+                qcom,s2-type = <PON_POWER_OFF_HARD_RESET>;
+            };
+
+            qcom,pon_3 {
+                qcom,pon-type = <3>;
+                qcom,support-reset = <1>;
+                qcom,pull-up = <1>;
+                qcom,s1-timer = <1352>;
+                qcom,s2-timer = <2000>;
+                qcom,s2-type = <PON_POWER_OFF_WARM_RESET>;
+                qcom,use-bark;
+            };
+        };
+    };
+};
+
+&pm660_haptics {
+    /delete-property/ qcom,correct-lra-drive-freq;
+};
+
+// msm-pm660l.dtsi
+&pm660l_torch0 {
+    qcom,max-current = <100>;
+    qcom,current-ma = <100>;
+};
+
+&pm660l_torch1 {
+    qcom,max-current = <100>;
+    qcom,current-ma = <100>;
+};
+
+&pm660l_torch2 {
+    qcom,max-current = <60>;
+    qcom,current-ma = <60>;
+};
+
+// sdm660-audio.dtsi
+&wsa881x_213_en {
+    qcom,spkr-sd-n-node = <&wsa_spkr_en2>;
+};
+
+&wsa881x_214_en {
+    qcom,spkr-sd-n-node = <&wsa_spkr_en1>;
+};
+
+// sdm660-camera.dtsi
+&i2c_freq_100Khz {
+    qcom,hw-scl-stretch-en = <1>;
+};
+
+&i2c_freq_400Khz {
+    qcom,hw-scl-stretch-en = <1>;
+};
+
+&i2c_freq_1Mhz {
+    qcom,hw-scl-stretch-en = <1>;
+};
+
+// sdm660-pinctrl.dtsi
+&i2c_4_sleep {
+    config {
+        /delete-property/ bias-pull-up;
+        bias-disable;
+    };
+};
+
+&spi_8_sleep {
+    config {
+        /delete-property/ bias-disable;
+        bias-pull-down;
+    };
 };
 
 &tlmm {
@@ -574,6 +693,75 @@
             };
         };
     };
+};
+
+&wcd_gnd_mic_swap_idle {
+    config {
+        /delete-property/ bias-pull-down;
+        /delete-property/ output-low;
+        bias-disable;
+        input-enable;
+    };
+};
+
+&cci0_suspend {
+    config {
+        /delete-property/ bias-pull-down;
+        bias-disable; /* NO PULL */
+    };
+};
+
+&cci1_suspend {
+    config {
+        /delete-property/ bias-pull-down;
+        bias-disable; /* NO PULL */
+    };
+};
+
+&tlmm {
+    cam_sensor_mclk0_active_jason: cam_sensor_mclk0_active_jason {
+        /* MCLK0 */
+        mux {
+            /* CLK */
+            pins = "gpio32";
+            function = "cam_mclk";
+        };
+
+        config {
+            pins = "gpio32";
+            bias-disable; /* No PULL */
+            drive-strength = <4>; /* 2 MA */
+        };
+    };
+
+    cam_sensor_mclk0_suspend_jason: cam_sensor_mclk0_suspend_jason {
+        /* MCLK0 */
+        mux {
+            /* CLK */
+            pins = "gpio32";
+            function = "cam_mclk";
+        };
+
+        config {
+            pins = "gpio32";
+            bias-pull-down; /* PULL DOWN */
+            drive-strength = <4>; /* 2 MA */
+        };
+    };
+
+    cam_sensor_front_active_jason: cam_sensor_front_active_jason {
+        /* RESET  VANA*/
+        mux {
+            pins = "gpio47", "gpio44", "gpio49";
+            function = "gpio";
+        };
+
+        config {
+            pins = "gpio47", "gpio44", "gpio49";
+            bias-disable; /* No PULL */
+            drive-strength = <2>; /* 2 MA */
+        };
+    };
 
     spk_id_no_pull: spk_id_no_pull {
         mux {
@@ -615,42 +803,139 @@
     };
 };
 
-// custom
-/ {
-    reserved-memory {
-        /delete-node/ dfps_data_mem@0x9f7ff000;
-        /delete-node/ pil_mba_region@94800000;
+// sdm660-pm.dtsi
+&soc {
+    qcom,mpm@7781b8 {
+        qcom,gpio-map =
+            <3  1>,
+            <4  5>,
+            <5  9>,
+            <6  10>,
+            <7  66>,
+            <8  22>,
+            <9  25>,
+            <10  28>,
+            <11  58>,
+            <13  41>,
+            <14  43>,
+            <15  40>,
+            <16  42>,
+            <17  46>,
+            <18  50>,
+            <19  44>,
+            <21  56>,
+            <22  45>,
+            <23  68>,
+            <24  69>,
+            <25  70>,
+            <26  71>,
+            <27  72>,
+            <28  73>,
+            <29  64>,
+            <30  2>,
+            <31  13>,
+            <32  111>,
+            <33  74>,
+            <34  75>,
+            <35  76>,
+            <36  82>,
+            <37  17>,
+            <38  77>,
+            <39  47>,
+            <40  54>,
+            <41  48>,
+            <42  101>,
+            <43  49>,
+            <44  51>,
+            <45  86>,
+            <46  90>,
+            <47  91>,
+            <48  52>,
+            <50  55>,
+            <51  6>,
+            <53  65>,
+            <55  67>,
+            <56  83>,
+            <57  84>,
+            <58  85>,
+            <59  87>,
+            <63  21>,
+            <64  78>,
+            <65  113>,
+            <66  60>,
+            <67  98>,
+            <68  30>,
+            <70  31>,
+            <71  29>,
+            <76  107>,
+            <83  109>,
+            <84  103>,
+            <85  105>,
+            <0xff 59>;
+    };
+};
 
-        dfps_data_mem: dfps_data_mem@0x9f800000 {
-               reg = <0 0x9f800000 0 0x00001000>;
-               label = "dfps_data_mem";
+// sdm660-regulator.dtsi
+&soc {
+    /* panel 1.8v power*/
+    disp_vdd_vreg: disp_vdd_vreg {
+        compatible = "regulator-fixed";
+        regulator-name = "disp_vdd_vreg";
+        startup-delay-us = <4000>;
+        enable-active-high;
+        regulator-boot-on;
+    };
+};
+
+// sdm660.dtsi
+&adsp_fw_mem {
+    reg = <0x0 0x92a00000 0x0 0x2200000>;
+};
+
+&pil_mba_mem {
+    reg = <0x0 0x94c00000 0x0 0x200000>;
+};
+
+&wdog {
+    qcom,bark-time = <20000>;
+    qcom,pet-time = <15000>;
+};
+
+&sensor_information15 {
+    qcom,sensor-name = "cam_therm0";
+};
+
+&soc {
+    qcom,sensor-information {
+        sensor_information22: qcom,sensor-information-22 {
+            qcom,sensor-type =  "adc";
+            qcom,sensor-name = "cam_therm1";
         };
-
-        ramoops_mem: ramoops_region@b0000000 {
-            compatible = "removed-dma-pool";
-            no-map;
-            reg = <0 0xb0000000 0 0x400000>;
+        sensor_information23: qcom,sensor-information-23 {
+            qcom,sensor-type =  "adc";
+            qcom,sensor-name = "backlight_therm";
         };
+    };
 
-        pil_mba_mem: pil_mba_region@94c00000 {
-            compatible = "removed-dma-pool";
-            no-map;
-            reg = <0x0 0x94c00000 0x0 0x200000>;
+    qcom,bcl {
+        qcom,ibat-monitor {
+            qcom,soc-low-threshold = <5>;
         };
     };
 };
 
-&soc {
-    ramoops {
-        compatible = "ramoops";
-        memory-region = <&ramoops_mem>;
-        console-size = <0x0 0x200000>;
-        pmsg-size = <0x0 0x200000>;
-    };
+&qcom_seecom {
+    /delete-property/ qcom,fde-key-size;
+    /delete-property/ qcom,qsee-reentrancy-support;
 };
 
 &soc {
-    qcom,qbt1000 {
-        status = "disabled";
+    gpio_keys {
+        /delete-property/ pinctrl-names;
+        /delete-property/ pinctrl-0;
+        /delete-property/ pinctrl-1;
+
+        /delete-node/ camera_focus;
+        /delete-node/ camera_snapshot;
     };
 };
