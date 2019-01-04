@@ -513,6 +513,40 @@
             reg = <0x0 0x94c00000 0x0 0x200000>;
         };
     };
+
+    cpus {
+        cpu@0 {
+            clock-frequency = <1843200000>;
+        };
+
+        cpu@1 {
+            clock-frequency = <1843200000>;
+        };
+
+        cpu@2 {
+            clock-frequency = <1843200000>;
+        };
+
+        cpu@3 {
+            clock-frequency = <1843200000>;
+        };
+
+        cpu@100 {
+            clock-frequency = <2457600000>;
+        };
+
+        cpu@101 {
+            clock-frequency = <2457600000>;
+        };
+
+        cpu@102 {
+            clock-frequency = <2457600000>;
+        };
+
+        cpu@103 {
+            clock-frequency = <2457600000>;
+        };
+    };
 };
 
 &soc {
